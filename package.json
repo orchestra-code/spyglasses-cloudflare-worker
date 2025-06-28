@@ -1,0 +1,68 @@
+{
+  "name": "@spyglasses/cloudflare-worker",
+  "version": "1.0.0",
+  "description": "The Spyglasses middleware for Next.js enables you to detect AI Agents, bots, crawlers, and referrers in your Next.js web applications. It provides comprehensive AI SEO, shows you when your site features in ChatGPT, Claude, Perplexity, and other AI assistant chat platforms. It can also prevent your site's content from being used for training AI by blocking the crawlers that scrape your content for training.",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "wrangler deploy --dry-run",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "version": "changeset version",
+    "release": "npm run build && npm publish --access public",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "cloudflare",
+    "cloudflare-workers",
+    "AI SEO",
+    "AI Analytics",
+    "AI Agent Detection",
+    "AI Model Blocking",
+    "AI Referrer Tracking",
+    "AI Crawler Detection",
+    "AI Bot Detection",
+    "bot-detection",
+    "ai-referrers",
+    "spyglasses",
+    "web-analytics",
+    "edge-computing"
+  ],
+  "author": "Spyglasses",
+  "license": "MIT",
+  "dependencies": {
+    "@spyglasses/sdk": "^0.5.2"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.28.1",
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "@cloudflare/vitest-pool-workers": "^0.5.26",
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "eslint": "^8.38.0",
+    "husky": "^9.1.7",
+    "rimraf": "^4.4.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8",
+    "wrangler": "^3.91.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spyglasses/spyglasses-cloudflare-worker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/spyglasses/spyglasses-cloudflare-worker/issues"
+  },
+  "homepage": "https://github.com/spyglasses/spyglasses-cloudflare-worker#readme"
+} 

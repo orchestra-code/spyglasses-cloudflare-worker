@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Configuration files
+wrangler.toml
+*.config.js
+*.config.ts
+
+# Documentation and examples
+README.md
+example.ts
+
+# Git and editors
+.git/
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+
+# Changeset files
+.changeset/ 

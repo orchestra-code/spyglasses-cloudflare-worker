@@ -1,0 +1,19 @@
+name = "spyglasses-worker"
+main = "src/index.ts"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "spyglasses-worker"
+
+[env.staging]
+name = "spyglasses-worker-staging"
+
+# Example configuration - users will customize this
+# [vars]
+# SPYGLASSES_API_KEY = "your-api-key"
+# SPYGLASSES_DEBUG = "false"
+# SPYGLASSES_COLLECTOR_ENDPOINT = "https://www.spyglasses.io/api/collect"
+
+# For development - these should be moved to secrets in production
+# SPYGLASSES_API_KEY will be set as a secret via wrangler secret put 
