@@ -11,10 +11,12 @@ Spyglasses Cloudflare Worker enables edge-based bot detection and AI referrer tr
 
 - 🤖 **Advanced Bot Detection** - Identify 1,000+ bot patterns including AI model trainers
 - 🧠 **AI Referrer Tracking** - Track visitors from ChatGPT, Claude, Perplexity, and other AI platforms  
-- 🚀 **Edge Performance** - Sub-millisecond detection with minimal latency
+- 🚀 **Edge Performance** - Sub-millisecond detection with intelligent caching
 - 🛡️ **Configurable Blocking** - Block specific bot types while allowing legitimate crawlers
 - 📊 **Real-time Analytics** - Optional logging to Spyglasses dashboard
-- 🎯 **Path Exclusions** - Skip processing for static assets and admin routes
+- 🎯 **Selective Processing** - Hostname filtering for multi-site deployments
+- 🌐 **URL Normalization** - Flexible origin URL configuration (with or without protocol)
+- ⚡ **Smart Caching** - Multi-tier pattern caching for optimal performance
 - 🔧 **Zero Configuration** - Works out of the box with sensible defaults
 
 ## 🚀 Quick Start
@@ -77,6 +79,10 @@ npx wrangler deploy
 | `SPYGLASSES_COLLECTOR_ENDPOINT` | ❌ | Custom analytics endpoint | Spyglasses default |
 | `SPYGLASSES_CACHE_TTL` | ❌ | Pattern cache TTL in seconds | `3600` |
 
+**Note**: The `ORIGIN_URL` can be specified as either:
+- Full URL: `https://your-site.webflow.io`
+- Hostname only: `your-site.webflow.io` (automatically normalized to `https://your-site.webflow.io`)
+
 ### Advanced Configuration
 
 For custom configuration, create your own worker:
@@ -119,8 +125,10 @@ Perfect for Webflow sites that need bot protection:
 
 ```toml
 [vars]
-ORIGIN_URL = "https://your-site.webflow.io"
+ORIGIN_URL = "your-site.webflow.io"  # Protocol optional - automatically adds https://
 ```
+
+The worker will only process requests to the specified hostname, automatically skipping other domains that might route through your Cloudflare account.
 
 ### E-commerce Protection
 
@@ -226,6 +234,56 @@ With a Spyglasses API key, you get:
 - **Background logging** to avoid blocking responses
 - **Edge distribution** for global low latency
 
+## ⚡ Pattern Caching & Synchronization
+
+The Cloudflare Worker includes intelligent pattern caching to ensure optimal performance while keeping detection patterns up-to-date.
+
+### How It Works
+
+1. **First Request**: Worker fetches latest patterns from Spyglasses API (if API key provided)
+2. **Module-Level Cache**: Patterns cached in memory within the Worker isolate
+3. **Cloudflare Cache API**: Patterns stored in Cloudflare's edge cache for persistence
+4. **Automatic Updates**: Patterns refreshed based on `SPYGLASSES_CACHE_TTL` setting
+
+### Cache Layers
+
+```
+Request → Module Cache → Cloudflare Cache → Spyglasses API
+         ↓ Hit         ↓ Hit            ↓ Miss
+    Sub-ms response   Fast response    Fresh patterns
+```
+
+### Cache Behavior
+
+- **Without API Key**: Uses 9 built-in patterns (AI assistants + major crawlers)
+- **With API Key**: Downloads 1,000+ patterns plus your custom blocking rules
+- **Cache Duration**: Configurable via `SPYGLASSES_CACHE_TTL` (default: 1 hour)
+- **Background Sync**: Pattern updates don't block request processing
+
+### Debug Caching
+
+Enable debug mode to see caching behavior:
+
+```bash
+npx wrangler tail --debug
+```
+
+Look for these log messages:
+```
+Spyglasses: Using recently synced patterns from module cache
+Spyglasses: Using cached patterns from Cloudflare Cache API (age: 45s)
+Spyglasses: Starting fresh pattern sync...
+Spyglasses: Successfully synced 1247 patterns and 5 AI referrers
+```
+
+### Cache Performance
+
+| Cache Source | Response Time | Pattern Count | Updates |
+|--------------|---------------|---------------|---------|
+| Module Cache | < 1ms | Full | Per isolate |
+| Cloudflare Cache | < 10ms | Full | Per edge location |
+| API Fetch | 50-200ms | Latest | Real-time |
+
 ## 🔧 Development
 
 ### Local Development
@@ -264,4 +322,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-Made with ❤️ by the [Spyglasses](https://www.spyglasses.io) team 
+Made with ❤️ by the [Spyglasses](https://www.spyglasses.io) team

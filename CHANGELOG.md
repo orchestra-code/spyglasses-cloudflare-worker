@@ -1,5 +1,52 @@
 # @spyglasses/cloudflare-worker
 
+## 1.1.0
+
+### Minor Changes
+
+- **🚀 Pattern Caching System** - Intelligent multi-tier caching for optimal performance
+  - Module-level cache for sub-millisecond response times within Worker isolates
+  - Cloudflare Cache API integration for persistence across edge locations
+  - Background pattern synchronization with `ctx.waitUntil()` for non-blocking requests
+  - Configurable cache TTL via `SPYGLASSES_CACHE_TTL` environment variable
+
+- **🌐 URL Normalization** - User-friendly origin URL configuration
+  - Automatically detects hostname-only URLs (e.g., `webflow.spyglasses.io`) and adds `https://` protocol
+  - Maintains backward compatibility with full URLs
+  - Improved error handling for malformed URLs
+
+- **🎯 Hostname Filtering** - Selective processing for multi-site deployments
+  - Only processes requests matching the configured origin hostname
+  - Prevents unintended processing when Cloudflare routes multiple domains through the same Worker
+  - Case-insensitive hostname matching for robustness
+  - Bypasses processing gracefully for non-matching domains
+
+### Improvements
+
+- **🧪 Comprehensive Test Suite** - 32 test cases covering all functionality
+  - Pattern caching behavior testing with mock Cloudflare Cache API
+  - URL normalization and hostname filtering validation
+  - Enhanced debugging capabilities for cache operations
+  - Background operation testing using ExecutionContext mocks
+
+- **📊 Enhanced Debug Logging** - Better visibility into Worker operations
+  - Cache hit/miss status with age information
+  - Hostname matching decisions
+  - Pattern sync timing and success/failure states
+  - Clear indication of when requests are skipped vs processed
+
+- **🔧 Developer Experience** - Improved configuration and debugging
+  - Test helper function `_resetPatternCache()` for unit testing
+  - Better error messages for configuration issues
+  - Comprehensive debug output for troubleshooting
+
+### Performance
+
+- **Cache Performance**: Sub-millisecond responses for cached patterns
+- **Memory Efficiency**: Smart caching reduces redundant API calls
+- **Edge Optimization**: Persistent caching across Cloudflare edge locations
+- **Background Processing**: Non-blocking pattern updates and logging
+
 ## 1.0.0
 
 ### Major Changes

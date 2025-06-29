@@ -1,7 +1,7 @@
 {
   "name": "@spyglasses/cloudflare-worker",
   "version": "1.0.0",
-  "description": "The Spyglasses middleware for Next.js enables you to detect AI Agents, bots, crawlers, and referrers in your Next.js web applications. It provides comprehensive AI SEO, shows you when your site features in ChatGPT, Claude, Perplexity, and other AI assistant chat platforms. It can also prevent your site's content from being used for training AI by blocking the crawlers that scrape your content for training.",
+  "description": "The Spyglasses Cloudflare Worker enables you to detect AI Agents, bots, crawlers, and referrers that visit you Cloudflare-protected origin server. It provides comprehensive AI SEO, shows you when your site features in ChatGPT, Claude, Perplexity, and other AI assistant chat platforms. It can also prevent your site's content from being used for training AI by blocking the crawlers that scrape your content for training.",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
@@ -65,4 +65,4 @@
     "url": "https://github.com/spyglasses/spyglasses-cloudflare-worker/issues"
   },
   "homepage": "https://github.com/spyglasses/spyglasses-cloudflare-worker#readme"
-} 
+}
