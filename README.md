@@ -77,6 +77,7 @@ npx wrangler deploy
 | `SPYGLASSES_API_KEY` | ❌ | API key for analytics and updates | - |
 | `SPYGLASSES_DEBUG` | ❌ | Enable debug logging | `false` |
 | `SPYGLASSES_COLLECTOR_ENDPOINT` | ❌ | Custom analytics endpoint | Spyglasses default |
+| `SPYGLASSES_PATTERNS_ENDPOINT` | ❌ | Custom patterns endpoint | Spyglasses default |
 | `SPYGLASSES_CACHE_TTL` | ❌ | Pattern cache TTL in seconds | `3600` |
 
 **Note**: The `ORIGIN_URL` can be specified as either:
@@ -92,6 +93,8 @@ import { createSpyglassesWorker, SpyglassesWorkerConfig } from '@spyglasses/clou
 
 const config: SpyglassesWorkerConfig = {
   debug: true,
+  collectEndpoint: 'https://dev.spyglasses.io/api/collect', // Custom endpoints for development
+  patternsEndpoint: 'https://dev.spyglasses.io/api/patterns',
   excludePaths: [
     '/api/',
     '/admin/',
@@ -311,9 +314,8 @@ npm run test:watch # Watch mode
 
 ## 🤝 Support
 
-- 📖 [Documentation](https://docs.spyglasses.io)
-- 💬 [Discord Community](https://discord.gg/spyglasses)
-- 🐛 [Report Issues](https://github.com/spyglasses/cloudflare-worker/issues)
+- 📖 [Documentation](https://www.spyglasses.io/docs/platforms/cloudflare-workers)
+- 🐛 [Report Issues](https://github.com/orchestra-code/spyglasses-cloudflare-worker/issues)
 - 📧 [Email Support](mailto:support@spyglasses.io)
 
 ## 📝 License

@@ -140,6 +140,24 @@ describe('Spyglasses Cloudflare Worker', () => {
       const worker = createSpyglassesWorker(config);
       expect(worker).toBeInstanceOf(SpyglassesWorker);
     });
+
+    it('creates worker with custom endpoints', async () => {
+      const config = {
+        apiKey: 'test-key',
+        collectEndpoint: 'https://dev.spyglasses.io/api/collect',
+        patternsEndpoint: 'https://dev.spyglasses.io/api/patterns'
+      };
+      
+      const worker = createSpyglassesWorker(config);
+      expect(worker).toBeInstanceOf(SpyglassesWorker);
+      
+      // Verify the Spyglasses SDK was created with custom endpoints
+      const { Spyglasses } = await import('@spyglasses/sdk');
+      expect(Spyglasses).toHaveBeenCalledWith(expect.objectContaining({
+        collectEndpoint: 'https://dev.spyglasses.io/api/collect',
+        patternsEndpoint: 'https://dev.spyglasses.io/api/patterns'
+      }));
+    });
   });
 
   describe('Pattern Caching', () => {

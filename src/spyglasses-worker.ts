@@ -6,6 +6,7 @@ export interface SpyglassesWorkerConfig {
   apiKey?: string;
   debug?: boolean;
   collectEndpoint?: string;
+  patternsEndpoint?: string;
   cacheTime?: number;
   excludePaths?: (string | RegExp)[];
   platformType?: string;
@@ -163,6 +164,7 @@ export class SpyglassesWorker {
       apiKey: config.apiKey,
       debug: config.debug || false,
       collectEndpoint: config.collectEndpoint,
+      patternsEndpoint: config.patternsEndpoint,
       platformType: config.platformType || 'cloudflare-worker',
       autoSync: false, // We'll handle sync manually for better caching control
     });

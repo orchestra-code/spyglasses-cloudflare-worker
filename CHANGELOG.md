@@ -21,6 +21,12 @@
   - Case-insensitive hostname matching for robustness
   - Bypasses processing gracefully for non-matching domains
 
+- **🔧 Custom Patterns Endpoint** - Enhanced development and testing capabilities
+  - Support for `patternsEndpoint` configuration option and `SPYGLASSES_PATTERNS_ENDPOINT` environment variable
+  - Enables pointing to development/staging API endpoints for testing
+  - Matches Ruby gem functionality for consistent developer experience across platforms
+  - Configurable via both environment variables and direct configuration
+
 ### Improvements
 
 - **🧪 Comprehensive Test Suite** - 32 test cases covering all functionality
