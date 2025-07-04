@@ -37,7 +37,7 @@ import worker from '@spyglasses/cloudflare-worker';
 export default worker;
 ```
 
-### 3. Configure Environment Variables
+### 3. Configure Your Worker
 
 In your `wrangler.toml`:
 
@@ -48,8 +48,12 @@ compatibility_date = "2024-12-30"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-ORIGIN_URL = "https://your-origin-server.com"
 SPYGLASSES_DEBUG = "false"
+
+# Configure Workers Routes
+[[routes]]
+pattern = "*your-domain.com/*"
+zone_name = "your-domain.com"
 ```
 
 ### 4. Set Your API Key (Optional)
@@ -73,16 +77,13 @@ npx wrangler deploy
 
 | Variable | Required | Description | Default |
 |----------|----------|-------------|---------|
-| `ORIGIN_URL` | ✅ | Your origin server URL | - |
 | `SPYGLASSES_API_KEY` | ❌ | API key for analytics and updates | - |
 | `SPYGLASSES_DEBUG` | ❌ | Enable debug logging | `false` |
 | `SPYGLASSES_COLLECTOR_ENDPOINT` | ❌ | Custom analytics endpoint | Spyglasses default |
 | `SPYGLASSES_PATTERNS_ENDPOINT` | ❌ | Custom patterns endpoint | Spyglasses default |
 | `SPYGLASSES_CACHE_TTL` | ❌ | Pattern cache TTL in seconds | `3600` |
 
-**Note**: The `ORIGIN_URL` can be specified as either:
-- Full URL: `https://your-site.webflow.io`
-- Hostname only: `your-site.webflow.io` (automatically normalized to `https://your-site.webflow.io`)
+**Note**: Routing is handled by [Cloudflare Workers Routes](https://developers.cloudflare.com/workers/configuration/routing/routes/).
 
 ### Advanced Configuration
 
@@ -112,13 +113,35 @@ export default {
       ...config,
       apiKey: env.SPYGLASSES_API_KEY,
       debug: env.SPYGLASSES_DEBUG === 'true',
-      originUrl: env.ORIGIN_URL,
     });
 
     return await spyglassesWorker.handleRequest(request, env, ctx);
   },
 };
 ```
+
+## 🛣️ Setting Up Workers Routes
+
+Cloudflare Workers Routes determine which requests are sent to your Worker. Configure routes either in the dashboard or `wrangler.toml`:
+
+### Dashboard Configuration
+1. Go to your domain in Cloudflare dashboard
+2. Navigate to **Workers Routes** in the sidebar  
+3. Click **Add route**
+4. Set pattern (e.g., `*your-domain.com/*`) and select your Worker
+
+### Wrangler Configuration
+```toml
+[[routes]]
+pattern = "*your-domain.com/*"
+zone_name = "your-domain.com"
+```
+
+**Common Patterns:**
+- `*example.com/*` - All requests to example.com
+- `api.example.com/*` - Only API subdomain requests
+- `example.com/blog/*` - Only blog path requests
+- `*.example.com/*` - All subdomain requests
 
 ## 🎯 Use Cases
 
@@ -127,11 +150,12 @@ export default {
 Perfect for Webflow sites that need bot protection:
 
 ```toml
-[vars]
-ORIGIN_URL = "your-site.webflow.io"  # Protocol optional - automatically adds https://
+[[routes]]
+pattern = "*your-site.webflow.io/*"
+zone_name = "webflow.io"
 ```
 
-The worker will only process requests to the specified hostname, automatically skipping other domains that might route through your Cloudflare account.
+The route pattern ensures only requests to your specific Webflow site are processed by the Worker.
 
 ### E-commerce Protection
 

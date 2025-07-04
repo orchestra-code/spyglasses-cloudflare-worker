@@ -6,7 +6,6 @@ export interface Env {
   SPYGLASSES_DEBUG?: string;
   SPYGLASSES_COLLECTOR_ENDPOINT?: string;
   SPYGLASSES_CACHE_TTL?: string;
-  ORIGIN_URL?: string;
   [key: string]: string | undefined;
 }
 

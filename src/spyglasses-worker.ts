@@ -10,13 +10,11 @@ export interface SpyglassesWorkerConfig {
   cacheTime?: number;
   excludePaths?: (string | RegExp)[];
   platformType?: string;
-  originUrl?: string;
   blockingTimeout?: number;
   awaitBlockedLogging?: boolean;
 }
 
 export interface SpyglassesWorkerEnv {
-  ORIGIN_URL?: string;
   [key: string]: string | undefined;
 }
 
@@ -173,33 +171,6 @@ export class SpyglassesWorker {
   }
 
   /**
-   * Normalize URL by adding protocol if missing
-   */
-  private normalizeOriginUrl(originUrl: string): string {
-    // If it doesn't start with http:// or https://, assume it's just a hostname and add https://
-    if (!originUrl.startsWith('http://') && !originUrl.startsWith('https://')) {
-      return `https://${originUrl}`;
-    }
-    return originUrl;
-  }
-
-  /**
-   * Check if request hostname matches origin hostname
-   */
-  private shouldProcessHostname(requestHostname: string, originUrl: string): boolean {
-    try {
-      const normalizedOriginUrl = this.normalizeOriginUrl(originUrl);
-      const originURL = new URL(normalizedOriginUrl);
-      return requestHostname.toLowerCase() === originURL.hostname.toLowerCase();
-    } catch (error) {
-      if (this.config.debug) {
-        console.error(`Spyglasses: Error parsing origin URL "${originUrl}":`, error);
-      }
-      return false;
-    }
-  }
-
-  /**
    * Initialize pattern sync (call this once per worker instance)
    */
   private async initializePatternSync(ctx: ExecutionContext): Promise<void> {
@@ -238,21 +209,12 @@ export class SpyglassesWorker {
       console.log(`Spyglasses: Processing request to ${url.hostname}${url.pathname}`);
     }
 
-    // Check if hostname should be processed
-    const originUrl = this.config.originUrl || env.ORIGIN_URL;
-    if (originUrl && !this.shouldProcessHostname(url.hostname, originUrl)) {
-      if (this.config.debug) {
-        console.log(`Spyglasses: Skipping hostname ${url.hostname}, not matching origin`);
-      }
-      return this.forwardToOrigin(request, env);
-    }
-
     // Check if path should be excluded
     if (this.shouldExcludePath(url.pathname)) {
       if (this.config.debug) {
         console.log(`Spyglasses: Excluding path: ${url.pathname}`);
       }
-      return this.forwardToOrigin(request, env);
+      return this.forwardToOrigin(request);
     }
 
     // Get user-agent and referrer
@@ -372,7 +334,7 @@ export class SpyglassesWorker {
     }
 
     // Forward to origin
-    return this.forwardToOrigin(request, env);
+    return this.forwardToOrigin(request);
   }
 
   /**
@@ -396,36 +358,10 @@ export class SpyglassesWorker {
   /**
    * Forward the request to the origin server
    */
-  private async forwardToOrigin(request: Request, env: SpyglassesWorkerEnv): Promise<Response> {
-    const originUrl = this.config.originUrl || env.ORIGIN_URL;
-    
-    if (!originUrl) {
-      if (this.config.debug) {
-        console.error('Spyglasses: No origin URL configured. Set ORIGIN_URL environment variable or config.originUrl');
-      }
-      return new Response('Origin URL not configured', { status: 500 });
-    }
-
+  private async forwardToOrigin(request: Request): Promise<Response> {
     try {
-      // Create a new URL with the origin
-      const url = new URL(request.url);
-      const normalizedOriginUrl = this.normalizeOriginUrl(originUrl);
-      const originURL = new URL(normalizedOriginUrl);
-      
-      // Preserve the path and query parameters but use the origin's host
-      url.hostname = originURL.hostname;
-      url.port = originURL.port;
-      url.protocol = originURL.protocol;
-
-      // Create a new request with the modified URL
-      const modifiedRequest = new Request(url.toString(), {
-        method: request.method,
-        headers: request.headers,
-        body: request.body,
-      });
-
-      // Forward the request
-      const response = await fetch(modifiedRequest);
+      // Forward the request directly - Cloudflare Workers Routes handle the routing
+      const response = await fetch(request);
       
       // Add Spyglasses headers to indicate processing
       const modifiedResponse = new Response(response.body, {

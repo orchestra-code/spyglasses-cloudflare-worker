@@ -164,7 +164,7 @@ describe('Spyglasses Cloudflare Worker', () => {
     it('initializes pattern sync on first request with API key', async () => {
       const worker = createSpyglassesWorker({ apiKey: 'test-key' });
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
       
       await worker.handleRequest(request, env, mockCtx);
       
@@ -178,7 +178,7 @@ describe('Spyglasses Cloudflare Worker', () => {
       
       const worker = createSpyglassesWorker({});
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
       
       await worker.handleRequest(request, env, mockCtx);
       
@@ -204,7 +204,7 @@ describe('Spyglasses Cloudflare Worker', () => {
         cacheTime: 3600 
       });
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
       
       await worker.handleRequest(request, env, mockCtx);
       
@@ -227,7 +227,7 @@ describe('Spyglasses Cloudflare Worker', () => {
         cacheTime: 3600 // 1 hour
       });
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
       
       await worker.handleRequest(request, env, mockCtx);
       
@@ -245,7 +245,7 @@ describe('Spyglasses Cloudflare Worker', () => {
         cacheTime: 3600
       });
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
       
       await worker.handleRequest(request, env, mockCtx);
       
@@ -272,7 +272,7 @@ describe('Spyglasses Cloudflare Worker', () => {
           '/.well-known/',
         ]
       });
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
       
       const testPaths = [
         '/favicon.ico',
@@ -298,7 +298,7 @@ describe('Spyglasses Cloudflare Worker', () => {
       const worker = createSpyglassesWorker({
         excludePaths: ['/custom', /^\/private\/.*/]
       });
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
       
       const customRequest = new Request('https://example.com/custom/page');
       const privateRequest = new Request('https://example.com/private/data');
@@ -312,7 +312,7 @@ describe('Spyglasses Cloudflare Worker', () => {
     it('processes non-excluded paths', async () => {
       const worker = createSpyglassesWorker({ apiKey: 'test-key' });
       const request = new Request('https://example.com/about');
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
       
       await worker.handleRequest(request, env, mockCtx);
       
@@ -332,7 +332,7 @@ describe('Spyglasses Cloudflare Worker', () => {
       const request = new Request('https://example.com', {
         headers: { 'user-agent': 'Mozilla/5.0' }
       });
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       const response = await worker.handleRequest(request, env, mockCtx);
       
@@ -361,7 +361,7 @@ describe('Spyglasses Cloudflare Worker', () => {
           'referer': 'https://google.com'
         }
       });
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       await worker.handleRequest(request, env, mockCtx);
       
@@ -406,7 +406,7 @@ describe('Spyglasses Cloudflare Worker', () => {
           'referer': 'https://chat.openai.com'
         }
       });
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       await worker.handleRequest(request, env, mockCtx);
       
@@ -436,7 +436,7 @@ describe('Spyglasses Cloudflare Worker', () => {
       const request = new Request('https://example.com', {
         headers: { 'user-agent': 'Googlebot' }
       });
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
 
       // Should not throw an error
       const response = await worker.handleRequest(request, env, mockCtx);
@@ -457,7 +457,7 @@ describe('Spyglasses Cloudflare Worker', () => {
       const request = new Request('https://example.com', {
         headers: { 'user-agent': 'AITrainer/1.0' }
       });
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       const response = await worker.handleRequest(request, env, mockCtx);
       
@@ -480,7 +480,7 @@ describe('Spyglasses Cloudflare Worker', () => {
         awaitBlockedLogging: true // Wait for blocked logging
       });
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       await worker.handleRequest(request, env, mockCtx);
       
@@ -503,7 +503,7 @@ describe('Spyglasses Cloudflare Worker', () => {
 
       const worker = createSpyglassesWorker({ apiKey: 'test-key' });
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
 
       await worker.handleRequest(request, env, mockCtx);
       
@@ -529,7 +529,7 @@ describe('Spyglasses Cloudflare Worker', () => {
         awaitBlockedLogging: true
       });
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       const start = Date.now();
       const response = await worker.handleRequest(request, env, mockCtx);
@@ -541,58 +541,26 @@ describe('Spyglasses Cloudflare Worker', () => {
     });
   });
 
-  describe('Origin Forwarding', () => {
-    it('forwards requests to configured origin', async () => {
+  describe('Request Forwarding', () => {
+    it('forwards requests directly to origin', async () => {
       const worker = createSpyglassesWorker({});
       const request = new Request('https://example.com/test?param=value', {
         method: 'GET',
         headers: { 'user-agent': 'TestAgent' }
       });
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
 
       await worker.handleRequest(request, env, mockCtx);
       
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.any(Request)
-      );
-      
-      // Check that URL was correctly modified
-      const fetchCall = mockFetch.mock.calls[0];
-      const fetchedRequest = fetchCall[0] as Request;
-      expect(fetchedRequest.url).toBe('https://origin.com/test?param=value');
+      expect(mockFetch).toHaveBeenCalledWith(request);
     });
 
-    it('uses originUrl config over environment variable', async () => {
-      const worker = createSpyglassesWorker({
-        originUrl: 'https://config-origin.com'
-      });
-      const request = new Request('https://example.com/test');
-      const env = { ORIGIN_URL: 'https://env-origin.com' };
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      const fetchCall = mockFetch.mock.calls[0];
-      const fetchedRequest = fetchCall[0] as Request;
-      expect(fetchedRequest.url).toBe('https://config-origin.com/test');
-    });
-
-    it('returns error when no origin URL configured', async () => {
-      const worker = createSpyglassesWorker({});
-      const request = new Request('https://example.com');
-      const env = {}; // No ORIGIN_URL
-
-      const response = await worker.handleRequest(request, env, mockCtx);
-      
-      expect(response.status).toBe(500);
-      expect(await response.text()).toBe('Origin URL not configured');
-    });
-
-    it('handles origin fetch errors', async () => {
+    it('handles fetch errors', async () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
       
       const worker = createSpyglassesWorker({});
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
 
       const response = await worker.handleRequest(request, env, mockCtx);
       
@@ -603,109 +571,11 @@ describe('Spyglasses Cloudflare Worker', () => {
     it('adds processing headers to response', async () => {
       const worker = createSpyglassesWorker({});
       const request = new Request('https://example.com');
-      const env = { ORIGIN_URL: 'https://origin.com' };
+      const env = {};
 
       const response = await worker.handleRequest(request, env, mockCtx);
       
       expect(response.headers.get('X-Spyglasses-Processed')).toBe('true');
-    });
-  });
-
-  describe('URL Normalization', () => {
-    it('normalizes hostname-only origin URLs', async () => {
-      const worker = createSpyglassesWorker({});
-      const request = new Request('https://example.com/test');
-      const env = { ORIGIN_URL: 'origin.com' }; // Just hostname, no protocol
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      // Check that fetch was called with normalized URL
-      const fetchCall = mockFetch.mock.calls[0];
-      const fetchedRequest = fetchCall[0] as Request;
-      expect(fetchedRequest.url).toBe('https://origin.com/test');
-    });
-
-    it('preserves existing protocol in origin URLs', async () => {
-      const worker = createSpyglassesWorker({});
-      const request = new Request('https://example.com/test');
-      const env = { ORIGIN_URL: 'http://origin.com' }; // Already has protocol
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      // Check that fetch was called with original protocol
-      const fetchCall = mockFetch.mock.calls[0];
-      const fetchedRequest = fetchCall[0] as Request;
-      expect(fetchedRequest.url).toBe('http://origin.com/test');
-    });
-  });
-
-  describe('Hostname Filtering', () => {
-    it('processes requests for matching hostname', async () => {
-      const worker = createSpyglassesWorker({ apiKey: 'test-key' });
-      const request = new Request('https://example.com/test', {
-        headers: { 'user-agent': 'TestAgent' }
-      });
-      const env = { ORIGIN_URL: 'https://example.com' };
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      // Should process the request (call detect)
-      expect(mockDetect).toHaveBeenCalledWith('TestAgent', '');
-    });
-
-    it('skips processing for non-matching hostname', async () => {
-      const worker = createSpyglassesWorker({ apiKey: 'test-key' });
-      const request = new Request('https://different.com/test', {
-        headers: { 'user-agent': 'TestAgent' }
-      });
-      const env = { ORIGIN_URL: 'https://example.com' };
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      // Should not process the request (skip detect)
-      expect(mockDetect).not.toHaveBeenCalled();
-      
-      // Should still forward to origin
-      expect(mockFetch).toHaveBeenCalled();
-    });
-
-    it('handles hostname comparison case-insensitively', async () => {
-      const worker = createSpyglassesWorker({ apiKey: 'test-key' });
-      const request = new Request('https://EXAMPLE.COM/test', {
-        headers: { 'user-agent': 'TestAgent' }
-      });
-      const env = { ORIGIN_URL: 'https://example.com' };
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      // Should process the request despite case difference
-      expect(mockDetect).toHaveBeenCalledWith('TestAgent', '');
-    });
-
-    it('works with hostname-only origin URLs', async () => {
-      const worker = createSpyglassesWorker({ apiKey: 'test-key' });
-      const request = new Request('https://example.com/test', {
-        headers: { 'user-agent': 'TestAgent' }
-      });
-      const env = { ORIGIN_URL: 'example.com' }; // Just hostname
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      // Should process the request
-      expect(mockDetect).toHaveBeenCalledWith('TestAgent', '');
-    });
-
-    it('processes all requests when no origin URL configured', async () => {
-      const worker = createSpyglassesWorker({ apiKey: 'test-key' });
-      const request = new Request('https://any-domain.com/test', {
-        headers: { 'user-agent': 'TestAgent' }
-      });
-      const env = {}; // No ORIGIN_URL
-
-      await worker.handleRequest(request, env, mockCtx);
-      
-      // Should process since no hostname filtering when no origin URL
-      expect(mockDetect).toHaveBeenCalledWith('TestAgent', '');
     });
   });
 
@@ -725,7 +595,7 @@ describe('Spyglasses Cloudflare Worker', () => {
           'x-forwarded-for': '5.6.7.8'
         }
       });
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       await worker.handleRequest(request, env, mockCtx);
       
@@ -751,7 +621,7 @@ describe('Spyglasses Cloudflare Worker', () => {
           'referer': 'https://example.referrer.com'
         }
       });
-      const env = { ORIGIN_URL: 'https://example.com' };
+      const env = {};
 
       await worker.handleRequest(request1, env, mockCtx);
       

@@ -3,6 +3,9 @@
  * 
  * These examples show different ways to use the Spyglasses Worker
  * for various use cases.
+ * 
+ * Note: With Workers Routes, you no longer need to configure origin URLs.
+ * Cloudflare Routes handle which requests reach your Worker.
  */
 
 // Example 1: Simple setup (recommended for most users)
@@ -41,7 +44,6 @@ export default {
       ...config,
       apiKey: env.SPYGLASSES_API_KEY,
       debug: env.SPYGLASSES_DEBUG === 'true',
-      originUrl: env.ORIGIN_URL,
     });
 
     return await spyglassesWorker.handleRequest(request, env, ctx);
@@ -86,7 +88,6 @@ export default {
       ...config,
       apiKey: env.SPYGLASSES_API_KEY,
       debug: env.SPYGLASSES_DEBUG === 'true',
-      originUrl: env.ORIGIN_URL,
     });
 
     return await spyglassesWorker.handleRequest(request, env, ctx);
@@ -118,7 +119,6 @@ export default {
     const spyglassesWorker = createSpyglassesWorker({
       ...config,
       apiKey: env.SPYGLASSES_API_KEY,
-      originUrl: env.ORIGIN_URL,
     });
 
     try {

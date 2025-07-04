@@ -1,5 +1,73 @@
 # @spyglasses/cloudflare-worker
 
+## 2.0.0
+
+### Major Changes
+
+- **🔄 BREAKING: Workers Routes Implementation** - Replaced ORIGIN_URL with Cloudflare Workers Routes
+  - **Removed**: `ORIGIN_URL` environment variable and `originUrl` configuration option
+  - **Removed**: Hostname filtering logic (now handled by Cloudflare Routes)
+  - **Simplified**: Origin forwarding now uses direct `fetch(request)` calls
+  - **Migration**: Replace `ORIGIN_URL` configuration with Workers Routes in Cloudflare dashboard
+
+- **📋 Simplified Configuration** - Streamlined setup process
+  - Workers now process all requests they receive via configured routes
+  - No need to specify origin servers in code
+  - Cloudflare handles routing automatically based on route patterns
+
+### Why This Change?
+
+- **🏆 Best Practices**: Aligns with [Cloudflare's recommended Workers Routes approach](https://developers.cloudflare.com/workers/configuration/routing/routes/)
+- **⚡ Better Performance**: Eliminates hostname filtering overhead
+- **🎯 Improved Reliability**: Cloudflare's native routing is more robust than manual URL rewriting
+- **🔧 Easier Configuration**: Route patterns are more flexible than hostname matching
+
+### Migration Guide
+
+**Before (v1.x):**
+```toml
+[vars]
+ORIGIN_URL = "https://your-site.webflow.io"
+```
+
+**After (v2.x):**
+```toml
+[[routes]]
+pattern = "*your-site.webflow.io/*"
+zone_name = "webflow.io"
+```
+
+Or configure routes in the Cloudflare dashboard under **Workers Routes**.
+
+### Breaking Changes
+
+1. **Environment Variables**:
+   - ❌ Removed: `ORIGIN_URL` environment variable
+   - ❌ Removed: `originUrl` configuration property
+
+2. **Behavior Changes**:
+   - Workers now process all requests they receive (no hostname filtering)
+   - Origin forwarding uses direct `fetch(request)` instead of URL rewriting
+   - Route configuration moved to Cloudflare Workers Routes
+
+3. **Test Changes**:
+   - Removed hostname filtering and URL normalization tests
+   - Simplified origin forwarding tests
+   - Updated all test cases to remove ORIGIN_URL dependencies
+
+### Updated Documentation
+
+- **📖 Enhanced Documentation**: Updated with Workers Routes configuration examples
+- **🖼️ Visual Guides**: Added dashboard screenshots for route configuration
+- **🔧 Troubleshooting**: New troubleshooting section for route pattern issues
+- **🆚 Comparison**: Added Workers Routes vs ORIGIN_URL comparison
+
+### Performance Improvements
+
+- **⚡ Reduced Latency**: Eliminated hostname checking and URL parsing overhead
+- **💾 Lower Memory Usage**: Removed URL normalization and hostname matching code
+- **🎯 Simpler Logic**: Streamlined request processing flow
+
 ## 1.1.0
 
 ### Minor Changes
