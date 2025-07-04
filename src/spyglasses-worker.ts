@@ -92,6 +92,7 @@ async function syncPatterns(spyglasses: Spyglasses, config: SpyglassesWorkerConf
 
     if (debug) {
       console.log('Spyglasses: Starting fresh pattern sync...');
+      console.log('Spyglasses: Patterns endpoint:', config.patternsEndpoint);
     }
     
     // Start pattern sync
@@ -146,6 +147,7 @@ async function syncPatterns(spyglasses: Spyglasses, config: SpyglassesWorkerConf
   } catch (error) {
     if (debug) {
       console.error('Spyglasses: Pattern sync failed, using defaults:', error);
+      console.error(`Tried to sync patterns from ${config.patternsEndpoint}`);
     }
   } finally {
     // Clear the promise so future calls can sync again

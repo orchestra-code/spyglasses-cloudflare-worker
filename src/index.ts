@@ -35,6 +35,7 @@ export default {
       apiKey: env.SPYGLASSES_API_KEY,
       debug: env.SPYGLASSES_DEBUG === 'true',
       collectEndpoint: env.SPYGLASSES_COLLECTOR_ENDPOINT,
+      patternsEndpoint: env.SPYGLASSES_PATTERNS_ENDPOINT,
       cacheTime: env.SPYGLASSES_CACHE_TTL ? parseInt(env.SPYGLASSES_CACHE_TTL, 10) : undefined,
     };
 
