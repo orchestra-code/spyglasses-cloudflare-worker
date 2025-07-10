@@ -1,6 +1,6 @@
 {
   "name": "@spyglasses/cloudflare-worker",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "The Spyglasses Cloudflare Worker enables you to detect AI Agents, bots, crawlers, and referrers that visit you Cloudflare-protected origin server. It provides comprehensive AI SEO, shows you when your site features in ChatGPT, Claude, Perplexity, and other AI assistant chat platforms. It can also prevent your site's content from being used for training AI by blocking the crawlers that scrape your content for training.",
   "main": "src/index.ts",
   "scripts": {
