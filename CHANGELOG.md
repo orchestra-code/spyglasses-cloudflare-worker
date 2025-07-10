@@ -1,5 +1,15 @@
 # @spyglasses/cloudflare-worker
 
+## 2.1.0
+
+### Minor Changes
+
+- **🔧 Fixed Pattern Loading** - Improved pattern synchronization and caching behavior
+  - Pattern sync now completes before processing first request to ensure full pattern set is available
+  - Fixed cached pattern application logic that was causing fallback to default patterns only
+  - Workers now properly load and use all 620+ bot detection patterns instead of just 9 defaults
+  - Enhanced debug logging to track pattern loading status and cache operations
+
 ## 2.0.0
 
 ### Major Changes

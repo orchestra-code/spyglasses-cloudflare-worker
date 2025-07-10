@@ -69,20 +69,21 @@ async function syncPatterns(spyglasses: Spyglasses, config: SpyglassesWorkerConf
       const cacheData = await cachedResponse.json() as (ApiPatternResponse & { timestamp: number });
       const cacheAge = now - (cacheData.timestamp || 0);
       
-      if (cacheAge < cacheTimeMs) {
+      if (cacheAge < cacheTimeMs && cacheData.patterns) {
         if (debug) {
-          console.log(`Spyglasses: Using cached patterns from Cloudflare Cache API (age: ${Math.round(cacheAge / 1000)}s)`);
+          console.log(`Spyglasses: Found fresh cached patterns from Cloudflare Cache API (age: ${Math.round(cacheAge / 1000)}s)`);
+          console.log(`Spyglasses: Cache contains ${cacheData.patterns?.length || 0} patterns and ${cacheData.aiReferrers?.length || 0} AI referrers`);
         }
         
-        // Apply cached patterns to the Spyglasses instance
-        if (cacheData.patterns) {
-          // We need to manually update the patterns since there's no direct way to set them
-          // The SDK will use these when we sync
-          lastPatternSyncTime = now;
+        // Mark that we have recent patterns to avoid unnecessary syncs
+        lastPatternSyncTime = now;
+        
+        if (debug) {
+          console.log('Spyglasses: ✅ Using cached patterns, skipping fresh sync');
         }
         return;
       } else if (debug) {
-        console.log(`Spyglasses: Cached patterns are stale (age: ${Math.round(cacheAge / 1000)}s), fetching fresh patterns`);
+        console.log(`Spyglasses: Cached patterns are stale (age: ${Math.round(cacheAge / 1000)}s) or incomplete, fetching fresh patterns`);
       }
     } else if (debug) {
       console.log('Spyglasses: No cached patterns found in Cloudflare Cache API');
@@ -173,7 +174,7 @@ export class SpyglassesWorker {
   /**
    * Initialize pattern sync (call this once per worker instance)
    */
-  private async initializePatternSync(ctx: ExecutionContext): Promise<void> {
+  private async initializePatternSync(): Promise<void> {
     if (this.patternSyncInitialized) {
       return;
     }
@@ -181,14 +182,19 @@ export class SpyglassesWorker {
     this.patternSyncInitialized = true;
 
     if (this.spyglasses.hasApiKey()) {
-      // Start pattern sync in background using waitUntil
-      ctx.waitUntil(
-        syncPatterns(this.spyglasses, this.config).catch((error) => {
-          if (this.config.debug) {
-            console.error('Spyglasses: Background pattern sync failed, continuing with defaults:', error);
-          }
-        })
-      );
+      try {
+        // Wait for pattern sync to complete on first request to ensure patterns are loaded
+        await syncPatterns(this.spyglasses, this.config);
+        
+        if (this.config.debug) {
+          console.log('Spyglasses: ✅ Pattern sync completed, ready to process requests');
+        }
+      } catch (error) {
+        if (this.config.debug) {
+          console.error('Spyglasses: Pattern sync failed, continuing with defaults:', error);
+        }
+        // Continue processing even if pattern sync fails - worker will use default patterns
+      }
     }
   }
 
@@ -201,7 +207,7 @@ export class SpyglassesWorker {
     ctx: ExecutionContext
   ): Promise<Response> {
     // Initialize pattern sync on first request
-    await this.initializePatternSync(ctx);
+    await this.initializePatternSync();
 
     const url = new URL(request.url);
     
