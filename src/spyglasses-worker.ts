@@ -22,8 +22,7 @@ export interface SpyglassesWorkerEnv {
 let patternSyncPromise: Promise<ApiPatternResponse | string> | null = null;
 let lastPatternSyncTime: number = 0;
 
-// Cache key for Cloudflare Cache API
-const PATTERNS_CACHE_KEY = 'spyglasses-patterns-v1';
+
 
 /**
  * Sync and cache patterns using both module-level cache and Cloudflare Cache API
@@ -59,42 +58,13 @@ async function syncPatterns(spyglasses: Spyglasses, config: SpyglassesWorkerConf
   }
 
   try {
-    // Try to get patterns from Cloudflare Cache API first
-    const cacheKey = `${PATTERNS_CACHE_KEY}-${config.apiKey?.substring(0, 8) || 'default'}`;
-    const cache = caches.default;
-    const cacheRequest = new Request(`https://cache.spyglasses.internal/${cacheKey}`);
-    
-    const cachedResponse = await cache.match(cacheRequest);
-    if (cachedResponse) {
-      const cacheData = await cachedResponse.json() as (ApiPatternResponse & { timestamp: number });
-      const cacheAge = now - (cacheData.timestamp || 0);
-      
-      if (cacheAge < cacheTimeMs && cacheData.patterns) {
-        if (debug) {
-          console.log(`Spyglasses: Found fresh cached patterns from Cloudflare Cache API (age: ${Math.round(cacheAge / 1000)}s)`);
-          console.log(`Spyglasses: Cache contains ${cacheData.patterns?.length || 0} patterns and ${cacheData.aiReferrers?.length || 0} AI referrers`);
-        }
-        
-        // Mark that we have recent patterns to avoid unnecessary syncs
-        lastPatternSyncTime = now;
-        
-        if (debug) {
-          console.log('Spyglasses: ✅ Using cached patterns, skipping fresh sync');
-        }
-        return;
-      } else if (debug) {
-        console.log(`Spyglasses: Cached patterns are stale (age: ${Math.round(cacheAge / 1000)}s) or incomplete, fetching fresh patterns`);
-      }
-    } else if (debug) {
-      console.log('Spyglasses: No cached patterns found in Cloudflare Cache API');
-    }
-
     if (debug) {
-      console.log('Spyglasses: Starting fresh pattern sync...');
+      console.log('Spyglasses: Starting pattern sync...');
       console.log('Spyglasses: Patterns endpoint:', config.patternsEndpoint);
     }
     
-    // Start pattern sync
+    // Always sync patterns - let the SDK handle loading them properly
+    // The caching will happen at the HTTP level if we implement HTTP intercepting later
     patternSyncPromise = spyglasses.syncPatterns();
     
     const result = await patternSyncPromise;
@@ -114,32 +84,7 @@ async function syncPatterns(spyglasses: Spyglasses, config: SpyglassesWorkerConf
       }
     }
 
-    // Cache the successful result in Cloudflare Cache API
-    if (typeof result !== 'string') {
-      try {
-        const cacheData = {
-          ...result,
-          timestamp: now
-        };
-        
-        const cacheResponse = new Response(JSON.stringify(cacheData), {
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': `max-age=${config.cacheTime || 3600}`
-          }
-        });
-        
-        await cache.put(cacheRequest, cacheResponse);
-        
-        if (debug) {
-          console.log('Spyglasses: Cached patterns in Cloudflare Cache API');
-        }
-      } catch (cacheError) {
-        if (debug) {
-          console.warn('Spyglasses: Failed to cache patterns in Cloudflare Cache API:', cacheError);
-        }
-      }
-    }
+
 
     lastPatternSyncTime = now;
     
